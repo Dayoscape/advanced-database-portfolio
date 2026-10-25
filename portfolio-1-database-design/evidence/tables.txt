@@ -1,0 +1,15 @@
+﻿            List of relations
+ Schema |    Name     | Type  |  Owner   
+--------+-------------+-------+----------
+ public | addresses   | table | shopcave
+ public | categories  | table | shopcave
+ public | customers   | table | shopcave
+ public | deliveries  | table | shopcave
+ public | order_items | table | shopcave
+ public | orders      | table | shopcave
+ public | payments    | table | shopcave
+ public | products    | table | shopcave
+ public | reviews     | table | shopcave
+ public | sellers     | table | shopcave
+(10 rows)
+

@@ -1,0 +1,20 @@
+﻿                                    Table "public.orders"
+   Column    |           Type           | Collation | Nullable |           Default            
+-------------+--------------------------+-----------+----------+------------------------------
+ order_id    | bigint                   |           | not null | generated always as identity
+ customer_id | bigint                   |           | not null | 
+ address_id  | bigint                   |           | not null | 
+ status      | character varying(20)    |           | not null | 'pending'::character varying
+ placed_at   | timestamp with time zone |           | not null | now()
+Indexes:
+    "orders_pkey" PRIMARY KEY, btree (order_id)
+Check constraints:
+    "orders_status_check" CHECK (status::text = ANY (ARRAY['pending'::character varying, 'paid'::character varying, 'shipped'::character varying, 'delivered'::character varying, 'cancelled'::character varying]::text[]))
+Foreign-key constraints:
+    "orders_address_id_fkey" FOREIGN KEY (address_id) REFERENCES addresses(address_id)
+    "orders_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+Referenced by:
+    TABLE "deliveries" CONSTRAINT "deliveries_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(order_id)
+    TABLE "order_items" CONSTRAINT "order_items_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+    TABLE "payments" CONSTRAINT "payments_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(order_id)
+
