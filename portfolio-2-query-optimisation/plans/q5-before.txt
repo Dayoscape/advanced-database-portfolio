@@ -1,0 +1,22 @@
+﻿                                                             QUERY PLAN                                                             
+------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=4525.02..4525.04 rows=10 width=48) (actual time=73.096..73.099 rows=10 loops=1)
+   Buffers: shared hit=1551
+   ->  Sort  (cost=4525.02..4537.95 rows=5174 width=48) (actual time=73.094..73.096 rows=10 loops=1)
+         Sort Key: (round(avg(rating), 2)) DESC, (count(*)) DESC
+         Sort Method: top-N heapsort  Memory: 26kB
+         Buffers: shared hit=1551
+         ->  HashAggregate  (cost=4167.43..4413.21 rows=5174 width=48) (actual time=64.515..72.801 rows=970 loops=1)
+               Group Key: product_id
+               Filter: (count(*) >= 20)
+               Batches: 1  Memory Usage: 3857kB
+               Rows Removed by Filter: 18738
+               Buffers: shared hit=1545
+               ->  Seq Scan on reviews r  (cost=0.00..3043.53 rows=149853 width=10) (actual time=0.069..19.230 rows=149853 loops=1)
+                     Buffers: shared hit=1545
+ Planning:
+   Buffers: shared hit=114
+ Planning Time: 0.525 ms
+ Execution Time: 73.729 ms
+(18 rows)
+

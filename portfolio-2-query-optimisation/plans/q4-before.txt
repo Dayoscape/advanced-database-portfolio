@@ -1,0 +1,60 @@
+﻿                                                                                     QUERY PLAN                                                                                     
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=209659.07..209659.09 rows=10 width=58) (actual time=1449.521..1460.951 rows=10 loops=1)
+   Buffers: shared hit=4800 read=9053, temp read=5552 written=5570
+   ->  Sort  (cost=209659.07..209659.48 rows=167 width=58) (actual time=1434.780..1446.209 rows=10 loops=1)
+         Sort Key: (round(((100.0 * (count(DISTINCT d.order_id) FILTER (WHERE ((d.status)::text = 'failed'::text)))::numeric) / (count(DISTINCT d.order_id))::numeric), 2)) DESC
+         Sort Method: top-N heapsort  Memory: 26kB
+         Buffers: shared hit=4800 read=9053, temp read=5552 written=5570
+         ->  GroupAggregate  (cost=79269.92..209655.46 rows=167 width=58) (actual time=848.066..1445.123 rows=500 loops=1)
+               Group Key: s.seller_id
+               Filter: (count(DISTINCT d.order_id) >= 200)
+               Buffers: shared hit=4797 read=9053, temp read=5552 written=5570
+               ->  Gather Merge  (cost=79269.92..199337.89 rows=1030923 width=35) (actual time=846.607..1275.544 rows=873208 loops=1)
+                     Workers Planned: 2
+                     Workers Launched: 2
+                     Buffers: shared hit=4797 read=9053, temp read=5552 written=5570
+                     ->  Sort  (cost=78269.90..79343.77 rows=429551 width=35) (actual time=810.988..902.533 rows=291069 loops=3)
+                           Sort Key: s.seller_id, d.order_id
+                           Sort Method: external merge  Disk: 14512kB
+                           Buffers: shared hit=4797 read=9053, temp read=5552 written=5570
+                           Worker 0:  Sort Method: external merge  Disk: 14800kB
+                           Worker 1:  Sort Method: external merge  Disk: 15104kB
+                           ->  Hash Join  (cost=8311.42..26334.10 rows=429551 width=35) (actual time=127.124..474.917 rows=291069 loops=3)
+                                 Hash Cond: (p.seller_id = s.seller_id)
+                                 Buffers: shared hit=4723 read=9053
+                                 ->  Hash Join  (cost=8294.17..25179.72 rows=429551 width=25) (actual time=118.755..398.979 rows=291069 loops=3)
+                                       Hash Cond: (oi.product_id = p.product_id)
+                                       Buffers: shared hit=4649 read=9049
+                                       ->  Parallel Hash Join  (cost=7559.17..23316.91 rows=429551 width=25) (actual time=111.007..288.452 rows=291069 loops=3)
+                                             Hash Cond: (oi.order_id = d.order_id)
+                                             Buffers: shared hit=3794 read=9049
+                                             ->  Parallel Seq Scan on order_items oi  (cost=0.00..14391.33 rows=520533 width=16) (actual time=0.090..52.744 rows=416426 loops=3)
+                                                   Buffers: shared hit=137 read=9049
+                                             ->  Parallel Hash  (cost=5733.95..5733.95 rows=146018 width=17) (actual time=108.857..108.858 rows=116597 loops=3)
+                                                   Buckets: 524288  Batches: 1  Memory Usage: 23168kB
+                                                   Buffers: shared hit=3657
+                                                   ->  Parallel Seq Scan on deliveries d  (cost=0.00..5733.95 rows=146018 width=17) (actual time=0.117..47.316 rows=116597 loops=3)
+                                                         Filter: ((status)::text = ANY ('{delivered,failed}'::text[]))
+                                                         Rows Removed by Filter: 16711
+                                                         Buffers: shared hit=3657
+                                       ->  Hash  (cost=485.00..485.00 rows=20000 width=16) (actual time=7.566..7.567 rows=20000 loops=3)
+                                             Buckets: 32768  Batches: 1  Memory Usage: 1194kB
+                                             Buffers: shared hit=855
+                                             ->  Seq Scan on products p  (cost=0.00..485.00 rows=20000 width=16) (actual time=0.025..2.925 rows=20000 loops=3)
+                                                   Buffers: shared hit=855
+                                 ->  Hash  (cost=11.00..11.00 rows=500 width=18) (actual time=8.309..8.310 rows=500 loops=3)
+                                       Buckets: 1024  Batches: 1  Memory Usage: 33kB
+                                       Buffers: shared hit=14 read=4
+                                       ->  Seq Scan on sellers s  (cost=0.00..11.00 rows=500 width=18) (actual time=7.945..8.230 rows=500 loops=3)
+                                             Buffers: shared hit=14 read=4
+ Planning:
+   Buffers: shared hit=276 read=9
+ Planning Time: 1.385 ms
+ JIT:
+   Functions: 92
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 4.241 ms, Inlining 0.000 ms, Optimization 1.781 ms, Emission 37.029 ms, Total 43.051 ms
+ Execution Time: 1497.016 ms
+(56 rows)
+

@@ -1,0 +1,48 @@
+﻿                                                                                             QUERY PLAN                                                                                             
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=33372.32..33372.35 rows=10 width=53) (actual time=205.472..205.978 rows=10 loops=1)
+   Buffers: shared hit=5451 read=9145
+   ->  Sort  (cost=33372.32..33422.32 rows=20000 width=53) (actual time=205.470..205.976 rows=10 loops=1)
+         Sort Key: (sum(((oi.quantity)::numeric * oi.unit_price))) DESC
+         Sort Method: top-N heapsort  Memory: 26kB
+         Buffers: shared hit=5451 read=9145
+         ->  Finalize HashAggregate  (cost=32690.13..32940.13 rows=20000 width=53) (actual time=196.587..202.713 rows=15900 loops=1)
+               Group Key: p.product_id
+               Batches: 1  Memory Usage: 7953kB
+               Buffers: shared hit=5448 read=9145
+               ->  Gather  (cost=28140.13..32390.13 rows=40000 width=53) (actual time=167.103..174.354 rows=27338 loops=1)
+                     Workers Planned: 2
+                     Workers Launched: 2
+                     Buffers: shared hit=5448 read=9145
+                     ->  Partial HashAggregate  (cost=27140.13..27390.13 rows=20000 width=53) (actual time=161.561..165.452 rows=9113 loops=3)
+                           Group Key: p.product_id
+                           Batches: 1  Memory Usage: 4625kB
+                           Buffers: shared hit=5448 read=9145
+                           Worker 0:  Batches: 1  Memory Usage: 4369kB
+                           Worker 1:  Batches: 1  Memory Usage: 4625kB
+                           ->  Hash Join  (cost=11115.80..26928.98 rows=21115 width=33) (actual time=55.550..144.821 rows=16381 loops=3)
+                                 Hash Cond: (oi.product_id = p.product_id)
+                                 Buffers: shared hit=5448 read=9145
+                                 ->  Parallel Hash Join  (cost=10380.80..26138.54 rows=21115 width=20) (actual time=45.784..128.558 rows=16381 loops=3)
+                                       Hash Cond: (oi.order_id = o.order_id)
+                                       Buffers: shared hit=4587 read=9145
+                                       ->  Parallel Seq Scan on order_items oi  (cost=0.00..14391.33 rows=520533 width=28) (actual time=0.016..38.094 rows=416426 loops=3)
+                                             Buffers: shared hit=41 read=9145
+                                       ->  Parallel Hash  (cost=10275.17..10275.17 rows=8451 width=8) (actual time=44.915..44.916 rows=6554 loops=3)
+                                             Buckets: 32768  Batches: 1  Memory Usage: 1088kB
+                                             Buffers: shared hit=4546
+                                             ->  Parallel Seq Scan on orders o  (cost=0.00..10275.17 rows=8451 width=8) (actual time=0.029..41.215 rows=6554 loops=3)
+                                                   Filter: (((status)::text <> 'cancelled'::text) AND (placed_at >= (now() - '90 days'::interval)) AND (placed_at < (now() - '60 days'::interval)))
+                                                   Rows Removed by Filter: 160113
+                                                   Buffers: shared hit=4546
+                                 ->  Hash  (cost=485.00..485.00 rows=20000 width=21) (actual time=9.489..9.489 rows=20000 loops=3)
+                                       Buckets: 32768  Batches: 1  Memory Usage: 1300kB
+                                       Buffers: shared hit=855
+                                       ->  Seq Scan on products p  (cost=0.00..485.00 rows=20000 width=21) (actual time=0.037..3.369 rows=20000 loops=3)
+                                             Buffers: shared hit=855
+ Planning:
+   Buffers: shared hit=205
+ Planning Time: 0.778 ms
+ Execution Time: 206.989 ms
+(44 rows)
+

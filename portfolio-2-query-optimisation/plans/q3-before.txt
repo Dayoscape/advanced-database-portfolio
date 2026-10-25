@@ -1,0 +1,24 @@
+﻿                                                              QUERY PLAN                                                               
+---------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=10047.81..10053.64 rows=50 width=24) (actual time=27.368..30.251 rows=50 loops=1)
+   Buffers: shared hit=4620
+   ->  Gather Merge  (cost=10047.81..12401.84 rows=20176 width=24) (actual time=27.366..30.233 rows=50 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=4620
+         ->  Sort  (cost=9047.78..9073.00 rows=10088 width=24) (actual time=24.798..24.802 rows=40 loops=3)
+               Sort Key: placed_at
+               Sort Method: top-N heapsort  Memory: 31kB
+               Buffers: shared hit=4620
+               Worker 0:  Sort Method: top-N heapsort  Memory: 31kB
+               Worker 1:  Sort Method: top-N heapsort  Memory: 30kB
+               ->  Parallel Seq Scan on orders  (cost=0.00..8712.67 rows=10088 width=24) (actual time=0.014..23.343 rows=8271 loops=3)
+                     Filter: (((status)::text = 'pending'::text) AND (placed_at < (now() - '7 days'::interval)))
+                     Rows Removed by Filter: 158396
+                     Buffers: shared hit=4546
+ Planning:
+   Buffers: shared hit=89
+ Planning Time: 0.248 ms
+ Execution Time: 30.285 ms
+(20 rows)
+
