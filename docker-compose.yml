@@ -1,0 +1,26 @@
+# Local development only. These credentials are throwaway.
+services:
+  postgres:
+    image: postgres:16
+    container_name: shopcave-pg
+    environment:
+      POSTGRES_USER: shopcave
+      POSTGRES_PASSWORD: shopcave_dev_only
+      POSTGRES_DB: shopcave
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./portfolio-1-database-design:/docker-entrypoint-initdb.d:ro
+
+  mongo:
+    image: mongo:7
+    container_name: shopcave-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+
+volumes:
+  pgdata:
+  mongodata:
