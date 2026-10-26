@@ -1,0 +1,81 @@
+﻿### 1. Primary sees the replica (pg_stat_replication)
+ application_name |   state   | sync_state 
+------------------+-----------+------------
+ walreceiver      | streaming | async
+(1 row)
+
+
+### 2. Is each server a standby? (f = primary, t = replica)
+primary:
+ pg_is_in_recovery 
+-------------------
+ f
+(1 row)
+
+
+replica:
+ pg_is_in_recovery 
+-------------------
+ t
+(1 row)
+
+
+### 3. Same data on both (orders count)
+primary:
+ orders 
+--------
+ 500000
+(1 row)
+
+
+replica:
+ orders 
+--------
+ 500000
+(1 row)
+
+
+### 4. Write on the PRIMARY (create table + row), read on the REPLICA
+DROP TABLE
+CREATE TABLE
+INSERT 0 1
+
+ id |        note        
+----+--------------------
+  1 | written on primary
+(1 row)
+
+
+### 5. Try to write on the REPLICA (must fail: it is read-only)
+docker : ERROR:  cannot execute INSERT in a read-only transaction
+At C:\Users\HomePC\Downloads\streamersnews-clip-editor\streamersnews-clip-editor\advanced-database-portfolio\portfolio-
+5-distributed-cloud\replication\01-replication-demo.ps1:6 char:16
++ ... ction Rep { docker exec shopcave-pg-replica psql -U shopcave -d shopc ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ERROR:  cannot ...nly transaction:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+### 6. Replication lag after a burst of 200,000 rows on the primary
+INSERT 0 200000
+
+ bytes_behind |   replay_lag    
+--------------+-----------------
+            0 | 00:00:00.948303
+(1 row)
+
+
+replica row count (should equal primary):
+ count  
+--------
+ 200001
+(1 row)
+
+
+primary row count:
+ count  
+--------
+ 200001
+(1 row)
+
+

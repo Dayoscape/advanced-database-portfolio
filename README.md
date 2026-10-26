@@ -38,8 +38,12 @@ Connect: `psql -h localhost -U shopcave -d shopcave` (password in `docker-compos
 
 | Portfolio | Status |
 |---|---|
-| 1 | Schema drafted, needs ER diagram and review |
-| 2 to 5 | Not started |
+| 1 | Done: schema, normalisation, ER diagram, screenshots |
+| 2 | Done: seed data, 5 queries, before/after plans, analysis |
+| 3 | Done: commit, rollback, oversell + fix, isolation, deadlock + fix |
+| 4 | Done: MongoDB document model, queries, index experiment |
+| 5 | Replication, failover, partitioning done; cloud deployment and screenshots to do (see `portfolio-5-distributed-cloud/cloud-deployment.md`) |
+| Final | Documentation (2 to 3 pages), reflection and AI declaration to finish in my own words |
 
 ## AI-use declaration
 

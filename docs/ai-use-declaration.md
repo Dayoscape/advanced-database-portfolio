@@ -8,6 +8,7 @@
    - Portfolio 2: writing the data-generation script, the five queries and the candidate indexes, running the benchmark, and drafting the analysis.
    - Portfolio 3: writing the demo scripts (commit, rollback, oversell and fix, isolation levels, deadlock and fix), running them, and drafting the analysis.
    - Portfolio 4: designing the MongoDB document model, writing the seed, query and index scripts, running them, and drafting the analysis.
+   - Portfolio 5: setting up the PostgreSQL replica and failover demo, the partitioning and sharding demo, and drafting the analysis and the cloud deployment guide.
    - Installing Docker and fixing environment problems.
 
 3. **How I reviewed and verified it:**

@@ -1,0 +1,67 @@
+﻿### 1. Before: replica is a standby
+ pg_is_in_recovery 
+-------------------
+ t
+(1 row)
+
+
+### 2. The PRIMARY crashes (we stop the container)
+shopcave-pg
+
+### 3. Promote the replica to be the new primary
+ pg_promote 
+------------
+ t
+(1 row)
+
+
+ pg_is_in_recovery 
+-------------------
+ f
+(1 row)
+
+
+### 4. The promoted replica now ACCEPTS writes
+INSERT 0 1
+
+   id   |                      note                      
+--------+------------------------------------------------
+      1 | written on primary
+ 200014 | written on the promoted replica after failover
+(2 rows)
+
+
+### 5. The old primary comes back. It does NOT have the new row (the servers have diverged: split brain)
+shopcave-pg
+
+ id |        note        
+----+--------------------
+  1 | written on primary
+(1 row)
+
+
+### 6. Clean up: remove test table from the primary and delete the replica
+DROP TABLE
+
+docker :  Container shopcave-pg-replica Stopping 
+At C:\Users\HomePC\Downloads\streamersnews-clip-editor\streamersnews-clip-editor\advanced-database-portfolio\portfolio-
+5-distributed-cloud\replication\02-failover-demo.ps1:30 char:10
++ $log += (docker compose -f docker-compose.yml -f docker-compose.repli ...
++          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( Container shopcave-pg-replica Stopping :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ Container shopcave-pg-replica Stopped 
+Going to remove shopcave-pg-replica
+ Container shopcave-pg-replica Removing 
+ Container shopcave-pg-replica Removed 
+
+advanced-database-portfolio_replicadata
+
+main database check:
+ orders 
+--------
+ 500000
+(1 row)
+
+

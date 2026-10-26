@@ -1,0 +1,18 @@
+# Adds a streaming replica of shopcave-pg. Local development only, throwaway credentials.
+# Start:  docker compose -f docker-compose.yml -f docker-compose.replica.yml up -d postgres-replica
+# Needs replication/setup-primary.ps1 to have been run once (creates the replication user).
+services:
+  postgres-replica:
+    image: postgres:16
+    container_name: shopcave-pg-replica
+    depends_on:
+      - postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - replicadata:/var/lib/postgresql/data
+      - ./portfolio-5-distributed-cloud/replication/replica-entrypoint.sh:/replica-entrypoint.sh:ro
+    entrypoint: ["bash", "/replica-entrypoint.sh"]
+
+volumes:
+  replicadata:

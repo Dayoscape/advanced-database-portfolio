@@ -1,0 +1,139 @@
+﻿docker : NOTICE:  table "orders_by_customer" does not exist, skipping
+At line:2 char:37
++ ... .sql -Raw | docker exec -i shopcave-pg psql -U shopcave -d shopcave 2 ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (NOTICE:  table ...exist, skipping:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+DROP TABLE
+=== A. RANGE partitioning by placed_at (one partition per quarter)
+CREATE TABLE
+DO
+INSERT 0 500000
+ANALYZE
+rows per partition:
+   partition   | rows  
+---------------+-------
+ orders_2024q4 | 46330
+ orders_2025q1 | 61988
+ orders_2025q2 | 62390
+ orders_2025q3 | 62597
+ orders_2025q4 | 63041
+ orders_2026q1 | 61668
+ orders_2026q2 | 62381
+ orders_2026q3 | 63144
+ orders_2026q4 | 16461
+(9 rows)
+
+--- same query on the ordinary orders table (one big table, uses idx_orders_placed_at)
+                                       QUERY PLAN                                       
+----------------------------------------------------------------------------------------
+ Aggregate (actual rows=1 loops=1)
+   ->  Index Only Scan using idx_orders_placed_at on orders (actual rows=60626 loops=1)
+         Index Cond: (placed_at >= (now() - '90 days'::interval))
+         Heap Fetches: 60626
+ Planning Time: 0.138 ms
+ Execution Time: 52.927 ms
+(6 rows)
+
+--- same query on the partitioned copy: partition pruning (only the recent partitions are scanned)
+                                                QUERY PLAN                                                
+----------------------------------------------------------------------------------------------------------
+ Finalize Aggregate (actual rows=1 loops=1)
+   ->  Gather (actual rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         ->  Partial Aggregate (actual rows=1 loops=3)
+               ->  Parallel Append (actual rows=20209 loops=3)
+                     Subplans Removed: 8
+                     ->  Parallel Seq Scan on orders_2026q3 orders_by_month_1 (actual rows=14722 loops=3)
+                           Filter: (placed_at >= (now() - '90 days'::interval))
+                           Rows Removed by Filter: 6326
+                     ->  Parallel Seq Scan on orders_2026q4 orders_by_month_2 (actual rows=8230 loops=2)
+                           Filter: (placed_at >= (now() - '90 days'::interval))
+ Planning Time: 0.368 ms
+ Execution Time: 11.805 ms
+(14 rows)
+
+--- retention: removing the oldest quarter (46k rows) by dropping its partition
+ rows_in_oldest_partition 
+--------------------------
+                    46330
+(1 row)
+
+Timing is on.
+DROP TABLE
+Time: 2.942 ms
+Timing is off.
+ rows_left 
+-----------
+    453670
+(1 row)
+
+--- for comparison: DELETE the same 46k rows from a PLAIN (non-partitioned) copy of the same shape
+CREATE TABLE
+INSERT 0 500000
+ANALYZE
+Timing is on.
+DELETE 46330
+Time: 81.297 ms
+Timing is off.
+ rows_left_plain 
+-----------------
+          453670
+(1 row)
+
+DROP TABLE
+
+=== B. HASH partitioning by customer_id: the idea behind sharding (4 "shards")
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+INSERT 0 500000
+ANALYZE
+rows per shard (even spread = good shard key):
+     shard     |  rows  
+---------------+--------
+ orders_shard0 | 124936
+ orders_shard1 | 125086
+ orders_shard2 | 125019
+ orders_shard3 | 124959
+(4 rows)
+
+--- a query on the shard key touches ONE shard only
+                  QUERY PLAN                  
+----------------------------------------------
+ Seq Scan on orders_shard0 orders_by_customer
+   Filter: (customer_id = 12345)
+(2 rows)
+
+--- a query WITHOUT the shard key must ask every shard (scatter-gather)
+                                   QUERY PLAN                                    
+---------------------------------------------------------------------------------
+ Finalize Aggregate
+   ->  Gather
+         Workers Planned: 2
+         ->  Partial Aggregate
+               ->  Parallel Append
+                     ->  Parallel Seq Scan on orders_shard1 orders_by_customer_2
+                           Filter: (placed_at >= (now() - '7 days'::interval))
+                     ->  Parallel Seq Scan on orders_shard2 orders_by_customer_3
+                           Filter: (placed_at >= (now() - '7 days'::interval))
+                     ->  Parallel Seq Scan on orders_shard3 orders_by_customer_4
+                           Filter: (placed_at >= (now() - '7 days'::interval))
+                     ->  Parallel Seq Scan on orders_shard0 orders_by_customer_1
+                           Filter: (placed_at >= (now() - '7 days'::interval))
+(13 rows)
+
+--- hot-spot check for the range key: where do the newest orders land?
+   partition   | orders_in_last_30_days 
+---------------+------------------------
+ orders_2026q3 |                   2879
+ orders_2026q4 |                  16461
+(2 rows)
+
+DROP TABLE
+demo tables dropped
+
