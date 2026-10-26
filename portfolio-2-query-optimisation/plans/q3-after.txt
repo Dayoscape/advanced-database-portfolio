@@ -1,0 +1,13 @@
+﻿                                                                QUERY PLAN                                                                 
+-------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.29..38.38 rows=50 width=24) (actual time=0.048..0.250 rows=50 loops=1)
+   Buffers: shared hit=50 read=2
+   ->  Index Scan using idx_orders_pending on orders  (cost=0.29..18902.31 rows=24816 width=24) (actual time=0.047..0.242 rows=50 loops=1)
+         Index Cond: (placed_at < (now() - '7 days'::interval))
+         Buffers: shared hit=50 read=2
+ Planning:
+   Buffers: shared hit=141 read=1
+ Planning Time: 0.606 ms
+ Execution Time: 0.278 ms
+(9 rows)
+

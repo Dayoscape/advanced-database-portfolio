@@ -23,13 +23,15 @@ Get-Content queries\q1_customer_history.sql -Raw | docker exec -i shopcave-pg ps
 1. Plans before indexes are in `plans/qN-before.txt`.
 2. Run `indexes.sql`, then run each query again and save the plans as `plans/qN-after.txt`.
 
-## Results (fill in after the "after" runs)
-| Query | Before (ms) | After (ms) | Plan change | Why |
-|---|---|---|---|---|
-| Q1 | 25.5 | | | |
-| Q2 | 207.0 | | | |
-| Q3 | 30.3 | | | |
-| Q4 | 1497.0 | | | |
-| Q5 | 73.7 | | | |
+## Results
+Single runs of `EXPLAIN (ANALYZE, BUFFERS)` on the same machine. Q2 and Q4 vary a lot between runs (see `analysis.md`).
 
-Write the analysis in `analysis.md` in your own words: what the planner did before, what changed after the index, and whether any index was NOT used or did not help (that is a valid and valuable finding).
+| Query | Before (ms) | After (ms) | Plan change | Verdict |
+|---|---|---|---|---|
+| Q1 | 25.5 | 3.4 | Parallel Seq Scan on orders → Bitmap Index Scan on `idx_orders_customer_placed` | Faster (about 7x) |
+| Q2 | 207.0 | 273 (reruns: 840, 197) | Seq Scan on orders → Bitmap Index Scan on `idx_orders_placed_at`; order_items still scanned fully | No real change |
+| Q3 | 30.3 | 0.28 | Parallel Seq Scan → Index Scan on partial index `idx_orders_pending` | Faster (about 100x) |
+| Q4 | 1497.0 | 1860 (reruns: 2446, 1990) | No index used; every big table still scanned | No gain, slightly worse |
+| Q5 | 73.7 | 87.7 (after VACUUM: 73.4) | `idx_reviews_product_rating` never used; Seq Scan on reviews | No gain |
+
+Plans: `plans/qN-before.txt`, `plans/qN-after.txt`, `plans/q5-after-vacuum.txt`. Analysis: `analysis.md`.
