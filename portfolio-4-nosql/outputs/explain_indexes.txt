@@ -1,0 +1,17 @@
+﻿=== BEFORE indexes
+Q1 phones ram>=8, price<300k      COLLSCAN (full scan)  examined=100000   returned=5966  ms=122
+Q2 black M shirts                 COLLSCAN (full scan)  examined=100000   returned=1207  ms=52
+Q3 tag bestseller                 COLLSCAN (full scan)  examined=100000   returned=26741 ms=48
+Q6 customer 123 orders            COLLSCAN (full scan)  examined=100000   returned=2     ms=93
+
+=== AFTER indexes
+Q1 phones ram>=8, price<300k      IXSCAN (index)        examined=5966     returned=5966  ms=61
+Q2 black M shirts                 IXSCAN (index)        examined=1207     returned=1207  ms=2
+Q3 tag bestseller                 IXSCAN (index)        examined=26741    returned=26741 ms=33
+Q6 customer 123 orders            IXSCAN (index)        examined=2        returned=2     ms=1
+
+Indexes on products:
+  _id_
+  category_1_attributes.ram_gb_1_price_1
+  category_1_attributes.size_1_attributes.colour_1
+  tags_1

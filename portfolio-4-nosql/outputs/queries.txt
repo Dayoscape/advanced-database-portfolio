@@ -1,0 +1,90 @@
+﻿
+--- Q1: phones with 8+ GB RAM under N300,000, cheapest first (attributes only phones have)
+[
+  {
+    _id: 8120,
+    name: 'Phone 8120',
+    price: 734,
+    attributes: {
+      brand: 'Samsung',
+      ram_gb: 12
+    }
+  },
+  {
+    _id: 78988,
+    name: 'Phone 78988',
+    price: 747,
+    attributes: {
+      brand: 'Samsung',
+      ram_gb: 12
+    }
+  },
+  {
+    _id: 4720,
+    name: 'Phone 4720',
+    price: 828,
+    attributes: {
+      brand: 'Apple',
+      ram_gb: 12
+    }
+  }
+]
+
+--- Q2: black size-M shirts (attributes only shirts have)
+count = 1207
+
+--- Q3: products tagged "bestseller" (array field)
+count = 26741
+
+--- Q4: aggregation: product count and average price per category
+[
+  {
+    _id: 'Laptops',
+    products: 25000,
+    avgPrice: 250307.43992
+  },
+  {
+    _id: 'Phones',
+    products: 25000,
+    avgPrice: 250305.03492
+  },
+  {
+    _id: 'Shirts',
+    products: 25000,
+    avgPrice: 249550.50276
+  },
+  {
+    _id: 'Shoes',
+    products: 25000,
+    avgPrice: 250529.0274
+  }
+]
+
+--- Q5: aggregation: best rated Phones with 2+ reviews (uses the embedded reviewStats)
+[
+  {
+    _id: 54736,
+    name: 'Phone 54736',
+    reviewStats: {
+      count: 3,
+      avg: 5
+    }
+  },
+  {
+    _id: 24688,
+    name: 'Phone 24688',
+    reviewStats: {
+      count: 3,
+      avg: 5
+    }
+  },
+  {
+    _id: 80244,
+    name: 'Phone 80244',
+    reviewStats: {
+      count: 3,
+      avg: 5
+    }
+  }
+]
+

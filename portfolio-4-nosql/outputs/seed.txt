@@ -1,0 +1,40 @@
+﻿products: 100000
+orders:   100000
+{
+  _id: 4,
+  sellerId: 472,
+  name: 'Phone 4',
+  category: 'Phones',
+  price: 215853,
+  stock: 472,
+  attributes: {
+    brand: 'Tecno',
+    ram_gb: 2,
+    storage_gb: 32,
+    battery_mah: 4081,
+    dual_sim: true
+  },
+  tags: [
+    'local',
+    'gift'
+  ],
+  reviews: [],
+  reviewStats: {
+    count: 0,
+    avg: null
+  }
+}
+{
+  _id: 2,
+  sellerId: 134,
+  name: 'Shirt 2',
+  category: 'Shirts',
+  price: 31359,
+  stock: 93,
+  attributes: {
+    size: 'XL',
+    colour: 'blue',
+    material: 'cotton',
+    fit: 'slim'
+  },
+  tags: [
