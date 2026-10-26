@@ -1,0 +1,39 @@
+﻿##### SESSION A (06_deadlock_fixed_A.sql)
+A: locking X then Y
+BEGIN
+UPDATE 1
+ pg_sleep 
+----------
+ 
+(1 row)
+
+UPDATE 1
+COMMIT
+A: finished
+
+##### SESSION B (06_deadlock_fixed_B.sql, started 1 s later)
+B: locking X then Y (waits for A)
+BEGIN
+UPDATE 1
+ pg_sleep 
+----------
+ 
+(1 row)
+
+UPDATE 1
+COMMIT
+B: finished
+
+=== FINAL STATE ===
+      name      | stock_qty | unit_price 
+----------------+-----------+------------
+ DEMO Item X    |         8 |    1000.00
+ DEMO Item Y    |         8 |    1000.00
+ DEMO Last Unit |         1 |    1000.00
+(3 rows)
+
+ buyer | order_id | product | quantity 
+-------+----------+---------+----------
+(0 rows)
+
+

@@ -1,0 +1,48 @@
+﻿##### SESSION A (02_rollback.sql)
+--- before: stock of DEMO Item X
+ stock_qty 
+-----------
+        10
+(1 row)
+
+BEGIN
+INSERT 0 1
+UPDATE 1
+--- inside the transaction (before the payment result): order and reduced stock are visible to this session
+ stock_qty 
+-----------
+         8
+(1 row)
+
+ orders_for_buyer_a 
+--------------------
+                  1
+(1 row)
+
+--- payment gateway reports FAILURE, so ROLLBACK
+ROLLBACK
+--- after ROLLBACK: stock is back to 10 and no order exists
+ stock_qty 
+-----------
+        10
+(1 row)
+
+ orders_for_buyer_a 
+--------------------
+                  0
+(1 row)
+
+
+=== FINAL STATE ===
+      name      | stock_qty | unit_price 
+----------------+-----------+------------
+ DEMO Item X    |        10 |    1000.00
+ DEMO Item Y    |        10 |    1000.00
+ DEMO Last Unit |         1 |    1000.00
+(3 rows)
+
+ buyer | order_id | product | quantity 
+-------+----------+---------+----------
+(0 rows)
+
+

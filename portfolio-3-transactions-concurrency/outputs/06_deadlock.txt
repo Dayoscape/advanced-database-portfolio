@@ -1,0 +1,48 @@
+﻿##### SESSION A (06_deadlock_A.sql)
+A: locking X
+BEGIN
+UPDATE 1
+ pg_sleep 
+----------
+ 
+(1 row)
+
+A: now wants Y (B holds it)
+UPDATE 1
+COMMIT
+A: finished
+
+##### SESSION B (06_deadlock_B.sql, started 1 s later)
+B: locking Y
+BEGIN
+UPDATE 1
+ pg_sleep 
+----------
+ 
+(1 row)
+
+B: now wants X (A holds it)
+ROLLBACK
+B: finished
+docker : ERROR:  deadlock detected
+    + CategoryInfo          : NotSpecified: (ERROR:  deadlock detected:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+DETAIL:  Process 5066 waits for ShareLock on transaction 928; blocked by process 5059.
+Process 5059 waits for ShareLock on transaction 929; blocked by process 5066.
+HINT:  See server log for query details.
+CONTEXT:  while updating tuple (284,76) in relation "products"
+
+=== FINAL STATE ===
+      name      | stock_qty | unit_price 
+----------------+-----------+------------
+ DEMO Item X    |         9 |    1000.00
+ DEMO Item Y    |         9 |    1000.00
+ DEMO Last Unit |         1 |    1000.00
+(3 rows)
+
+ buyer | order_id | product | quantity 
+-------+----------+---------+----------
+(0 rows)
+
+

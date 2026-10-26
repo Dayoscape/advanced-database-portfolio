@@ -1,0 +1,40 @@
+﻿##### SESSION A (05_isolation_A_readcommitted.sql)
+A (READ COMMITTED): start
+BEGIN
+A: first read of the price
+ unit_price 
+------------
+    1000.00
+(1 row)
+
+ pg_sleep 
+----------
+ 
+(1 row)
+
+A: second read of the price (B has committed a change meanwhile)
+ unit_price 
+------------
+    1500.00
+(1 row)
+
+COMMIT
+
+##### SESSION B (05_isolation_B.sql, started 1 s later)
+B: raising the price by 500 and committing
+UPDATE 1
+B: done
+
+=== FINAL STATE ===
+      name      | stock_qty | unit_price 
+----------------+-----------+------------
+ DEMO Item X    |        10 |    1500.00
+ DEMO Item Y    |        10 |    1000.00
+ DEMO Last Unit |         1 |    1000.00
+(3 rows)
+
+ buyer | order_id | product | quantity 
+-------+----------+---------+----------
+(0 rows)
+
+

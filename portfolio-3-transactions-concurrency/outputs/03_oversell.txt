@@ -1,0 +1,43 @@
+﻿##### SESSION A (03_oversell_A.sql)
+Buyer A: start
+BEGIN
+Buyer A sees stock = 1
+ pg_sleep 
+----------
+ 
+(1 row)
+
+INSERT 0 1
+UPDATE 1
+Buyer A: ORDER PLACED
+COMMIT
+
+##### SESSION B (03_oversell_B.sql, started 1 s later)
+Buyer B: start
+BEGIN
+Buyer B sees stock = 1
+ pg_sleep 
+----------
+ 
+(1 row)
+
+INSERT 0 1
+UPDATE 1
+Buyer B: ORDER PLACED
+COMMIT
+
+=== FINAL STATE ===
+      name      | stock_qty | unit_price 
+----------------+-----------+------------
+ DEMO Item X    |        10 |    1000.00
+ DEMO Item Y    |        10 |    1000.00
+ DEMO Last Unit |         0 |    1000.00
+(3 rows)
+
+           buyer           | order_id |    product     | quantity 
+---------------------------+----------+----------------+----------
+ demo-buyer-a@example.test |   500003 | DEMO Last Unit |        1
+ demo-buyer-b@example.test |   500004 | DEMO Last Unit |        1
+(2 rows)
+
+

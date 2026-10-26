@@ -1,0 +1,36 @@
+﻿##### SESSION A (04_fixed_A.sql)
+Buyer A: start
+BEGIN
+Buyer A sees stock = 1
+ pg_sleep 
+----------
+ 
+(1 row)
+
+INSERT 0 1
+UPDATE 1
+Buyer A: ORDER PLACED
+COMMIT
+Buyer A: committed, lock released
+
+##### SESSION B (04_fixed_B.sql, started 1 s later)
+Buyer B: start (will wait for the lock)
+BEGIN
+Buyer B sees stock = 0
+Buyer B: out of stock, rejected
+COMMIT
+
+=== FINAL STATE ===
+      name      | stock_qty | unit_price 
+----------------+-----------+------------
+ DEMO Item X    |        10 |    1000.00
+ DEMO Item Y    |        10 |    1000.00
+ DEMO Last Unit |         0 |    1000.00
+(3 rows)
+
+           buyer           | order_id |    product     | quantity 
+---------------------------+----------+----------------+----------
+ demo-buyer-a@example.test |   500005 | DEMO Last Unit |        1
+(1 row)
+
+

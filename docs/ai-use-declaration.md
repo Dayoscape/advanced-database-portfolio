@@ -6,6 +6,7 @@
    - Choosing the case study (ShopCave marketplace) and scaffolding the repository.
    - A first draft of the schema, the normalisation write-up and the ER diagram text.
    - Portfolio 2: writing the data-generation script, the five queries and the candidate indexes, running the benchmark, and drafting the analysis.
+   - Portfolio 3: writing the demo scripts (commit, rollback, oversell and fix, isolation levels, deadlock and fix), running them, and drafting the analysis.
    - Installing Docker and fixing environment problems.
 
 3. **How I reviewed and verified it:**
@@ -14,6 +15,7 @@
    - I checked the normalisation write-up against my schema, and I can explain each functional dependency from the unnormalised sheet through 1NF, 2NF and 3NF.
    - I edited the write-up so the explanations are in my own words, and I understand why `order_items` stores its own `unit_price` and why there is no stored order total.
    - For Portfolio 2, the seed data, queries and index script were run on my local database, and the before and after plans are saved in `plans/`. The first benchmark run was executed by Claude and I reviewed the results; the analysis reports honestly that three of the five queries did not improve.
+   - For Portfolio 3, the two-session demos were run against my local database and their outputs are saved in `outputs/`. The first run was executed by Claude, and I reviewed the outputs against the scripts.
    - *(Add here, in your own words, what you re-ran or changed yourself.)*
 
 ---

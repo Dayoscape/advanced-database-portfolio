@@ -1,0 +1,27 @@
+﻿##### SESSION A (01_commit.sql)
+--- before: stock of DEMO Item X
+ stock_qty 
+-----------
+        10
+(1 row)
+
+BEGIN
+INSERT 0 1
+UPDATE 1
+COMMIT
+--- after COMMIT: stock reduced by 2 and the order exists (see final state below)
+
+=== FINAL STATE ===
+      name      | stock_qty | unit_price 
+----------------+-----------+------------
+ DEMO Item X    |         8 |    1000.00
+ DEMO Item Y    |        10 |    1000.00
+ DEMO Last Unit |         1 |    1000.00
+(3 rows)
+
+           buyer           | order_id |   product   | quantity 
+---------------------------+----------+-------------+----------
+ demo-buyer-a@example.test |   500001 | DEMO Item X |        2
+(1 row)
+
+
