@@ -39,11 +39,11 @@ docker exec shopcave-mongo mongosh --quiet shopcave /tmp/seed.js
 Do the same for `queries.js` and `explain_indexes.js`.
 
 ## Results (index experiment, 100k products / 100k orders)
-| Query | Before | After | Examined (before to after) |
+| Query | Run 1 before to after | Run 2 before to after (`screenshots/04-index-explain.png`) | Examined (before to after) |
 |---|---|---|---|
-| Q1 phones RAM >= 8, price < 300k, sorted | 122 ms, COLLSCAN | 61 ms, IXSCAN | 100,000 to 5,966 |
-| Q2 black size-M shirts | 52 ms, COLLSCAN | 2 ms, IXSCAN | 100,000 to 1,207 |
-| Q3 tag "bestseller" | 48 ms, COLLSCAN | 33 ms, IXSCAN | 100,000 to 26,741 |
-| Q6 one customer's orders | 93 ms, COLLSCAN | 1 ms, IXSCAN | 100,000 to 2 |
+| Q1 phones RAM >= 8, price < 300k, sorted | 122 ms to 61 ms | 1585 ms to 185 ms | 100,000 to 5,966 |
+| Q2 black size-M shirts | 52 ms to 2 ms | 81 ms to 4 ms | 100,000 to 1,207 |
+| Q3 tag "bestseller" | 48 ms to 33 ms | 68 ms to 51 ms | 100,000 to 26,741 |
+| Q6 one customer's orders | 93 ms to 1 ms | 997 ms to 1 ms | 100,000 to 2 |
 
-Single runs; see `analysis.md` for caveats.
+Two separate runs on the same data. The plans and the number of documents examined are identical in both runs, but the milliseconds differ a lot (for example the Q1 "before" took 122 ms in run 1 and 1585 ms in run 2), so timings on this laptop are noisy. See `analysis.md`.
