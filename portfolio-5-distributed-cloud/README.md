@@ -9,7 +9,7 @@ Same case study (ShopCave). Everything below ran locally in Docker except the cl
 | Failover | `replication/02-failover-demo.ps1` | `outputs/02-failover.txt` |
 | Partitioning / sharding | `partitioning.sql` | `outputs/03-partitioning.txt` |
 | Consistency, availability, CAP; self-hosted vs managed | `analysis.md` | |
-| Cloud deployment | `cloud-deployment.md` | **to be done by you** (screenshots in `screenshots/`) |
+| Cloud deployment (Neon, Free plan) | `cloud-deployment.md` | `screenshots/01-neon-dashboard.png` to `04-scaling-options.png` |
 
 ## How to run (PowerShell)
 ```bash

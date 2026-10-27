@@ -38,15 +38,23 @@ Synchronous replication (the primary waits for the replica to confirm) would rem
 | Seller state | Skewed (Lagos would be much larger than other states in a real market) | Regional delivery queries | Hot shard; I did not measure this with data |
 
 ## 4. Cloud deployment
-See `cloud-deployment.md`. The table below is based on what I ran locally and on general knowledge of managed services; I have not yet checked it against a cloud service myself, so complete it after the cloud exercise.
+See `cloud-deployment.md`. I created a free Neon project (`shopcave-portfolio`, AWS Europe West 2, London) and loaded the same `schema.sql` into it. All 10 tables were created (`screenshots/02-cloud-tables.png`). Neon reported PostgreSQL 18.6, while my local Docker database runs PostgreSQL 16, so the same schema worked on a newer major version without changes.
 
-| | Self-hosted (my Docker setup) | Managed PostgreSQL (for example Supabase or Neon) |
+What I observed in the Neon console (Free plan):
+- **Setup:** creating the project and getting a connection string took a few minutes; I did not have to write any replication, user or server configuration (`screenshots/01-neon-dashboard.png`).
+- **Backups:** the Backup & Restore page offers "Restore from history" to any point in a **6-hour window** (configurable), and manual snapshots. Scheduled snapshots show "Upgrade for schedules", so they need a paid plan (`screenshots/03-backups.png`).
+- **Scaling:** the compute is sized **0.25 to 2 CU** (it scales automatically within that range) and showed **SUSPENDED** a few minutes after I stopped using it, meaning it scales to zero when idle, so the first connection after a pause is likely to be slower (I did not time this). A **Read Replica** option is listed on the page; I did not create one, so I cannot say what it costs or whether the free plan allows it (`screenshots/04-scaling-options.png`).
+
+| | Self-hosted (my Docker setup) | Managed PostgreSQL (Neon, Free plan) |
 |---|---|---|
-| Setup | I wrote the compose files, replication user and entrypoint script | A few clicks |
-| Replication and failover | I configured and promoted manually | Usually provided by the service (depends on plan) |
-| Backups | None configured by me | Usually automatic (depends on plan) |
-| Control | Full | Limited settings, some extensions restricted |
-| Cost and effort | Free but my time and my laptop | Free tier with limits; paid plans for production |
+| Setup | I wrote the compose files, replication user and entrypoint script | A few clicks, then a connection string |
+| Replication and failover | I configured replication and promoted the replica by hand | A read-replica option exists in the console (not tested); I did not test failover |
+| Backups | None configured by me | 6-hour point-in-time restore window and manual snapshots; scheduled snapshots need a paid plan |
+| Scaling | Fixed by my laptop | Autoscaling compute (0.25 to 2 CU) and suspend when idle |
+| Control | Full (I could edit `pg_hba.conf`, stop the primary, promote the replica) | Limited to what the console and roles allow; I did not need superuser access |
+| Cost and effort | Free, but my time and my laptop; nothing keeps it running if my PC is off | Free plan with limits; I have not checked the paid pricing |
+
+**What this means for ShopCave:** a managed service takes over the backup and operations work that I did by hand, and it removes the single laptop as a point of failure, but the free plan's 6-hour history, suspend-when-idle behaviour and lack of scheduled snapshots would not be enough for a real shop's order and payment data. For production I would need a paid plan with longer retention and high availability, and I would check the pricing and the replica options before choosing.
 
 ## Limits
 - Everything ran on one laptop, so there is no real network partition, latency or hardware failure; the "crash" was `docker stop`.
@@ -54,4 +62,4 @@ See `cloud-deployment.md`. The table below is based on what I ran locally and on
 - Partitioning demos use copies and single runs; timings are noisy.
 
 ---
-*Drafted by Claude from the recorded outputs. Rewrite in your own words and make sure you can explain each experiment before submitting. Complete section 4 after the cloud exercise.*
+*Drafted by Claude from the recorded outputs. Rewrite in your own words and make sure you can explain each experiment before submitting. Section 4 uses what I saw in the Neon console; check each statement against your screenshots.*
