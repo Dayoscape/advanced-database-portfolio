@@ -18,7 +18,7 @@
    - I edited the write-up so the explanations are in my own words, and I understand why `order_items` stores its own `unit_price` and why there is no stored order total.
    - For Portfolio 2, the seed data, queries and index script were run on my local database, and the before and after plans are saved in `plans/`. The first benchmark run was executed by Claude and I reviewed the results; the analysis reports honestly that three of the five queries did not improve.
    - For Portfolio 3, the two-session demos were run against my local database and their outputs are saved in `outputs/`. The first run was executed by Claude, and I reviewed the outputs against the scripts.
-   - *(Add here, in your own words, what you re-ran or changed yourself.)*
+   - I chose the case study and its name (ShopCave), ran the oversell, deadlock, replication and MongoDB index demos myself and took the screenshots, created the Neon project and loaded the schema myself, retook a screenshot that showed a database password and reset that password, and rejected unsuitable early output (failed replication screenshots taken before the replica was ready). I understand that I remain responsible for the accuracy of everything I submit.
 
 ---
 
